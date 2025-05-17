@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather app </title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false">
+            <button><img class='search-icon' src="images/search-interface-symbol.png" alt=""></button>
+            <div class="date-img">
+                <img src="images/schedule.png" alt="">
+                <h1 class="date">date</h1>
+
+            </div>
+            <div class="time-img">
+                <img src="images/back-in-time.png" alt="">
+                <h1 class="time">time</h1>
+
+            </div>
+        </div>
+        <div class="weather">
+            <img src="images/heavy-rain.png" class="weather-icon">
+            <h1 class="temp">22<sup>o</sup>C
+            </h1>
+            <h2 class="city">Harivaram</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="images/humidity.png" alt="">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                 <div class="col">
+                    <img src="images/storm.png" alt="">
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind speed</p>
+                    </div>
+                </div>
+                 <div class="col">
+                    <img src="images/sunrise.png" alt="">
+                    <div>
+                        <p class="sunrise">06:35 AM</p>
+                        <p>SunRise</p>
+                    </div>
+                </div>
+                 <div class="col">
+                    <img src="images/sunset-.png" alt="">
+                    <div>
+                        <p class="sunset">06:10 PM</p>
+                        <p>Sunset</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+
+        //date
+        const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+    //time
+        setInterval(()=>{
+
+             var date = new Date();
+             let Hours = date.getHours();
+             let minutes = date.getMinutes();
+             let seconds = date.getSeconds();
+        document.querySelector('.date').innerText = date.getUTCDate()+' '+months[date.getMonth()]+' '+date.getFullYear();
+        document.querySelector('.time').innerText = (Hours<10?'0'+Hours:Hours)+':'+(minutes<10?'0'+minutes:minutes)+':'+ (seconds<10?'0'+seconds:seconds)+' '+(Hours<=12?'AM':'PM');
+        });
+       //api integration
+        const apiKey = '246df99507c9e030b073e9a759839784';
+        const apiUrl = 'https://api.openweathermap.org/data/2.5/weather?&units=metric';
+         var cityName = document.querySelector('.search input');
+            var btn = document.querySelector('.search button');
+            var cityName = document.querySelector('.search input');
+          
+        async function checkWeather(cityName) {
+            const response = await fetch(apiUrl +`&appid=${apiKey}`+`&q=${cityName}`);
+            var data = await response.json();
+            
+
+          
+            var temp = document.querySelector('.weather h1');//temperature
+            var city = document.querySelector('.city');//city
+            var humidity = document.querySelector('.humidity');//humidity
+            var wind = document.querySelector('.wind');//wind
+           //updating all html data
+            temp.innerHTML = '<img src="images/celsius.png">'+Math.round(data.main.temp)+'°C';
+            humidity.innerText = data.main.humidity+'%';
+            wind.innerText = Math.round(data.wind.speed*3.6)+' Km/h';
+            city.innerHTML = '<img src="images/location.png"> '+cityName;
+
+            //background changing
+            var bgWeather = data.weather[0].main;
+            document.querySelector('.weather img').src = 'images/'+bgWeather+'.png';
+            document.querySelector('body').style.backgroundImage = `url('images/${bgWeather}.jpg')`;
+            console.log(data);
+
+            // sunrise
+            const sunriseUTCms = data.sys.sunrise * 1000;
+            const sunriseDateUTC = new Date(sunriseUTCms);
+            const sunriseLocalMs = sunriseUTCms + (data.timezone * 1000);
+            const sunriseLocal = new Date(sunriseLocalMs);
+            const sunriseTime = sunriseLocal.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'UTC'
+            });
+            document.querySelector('.sunrise').innerText = sunriseTime;
+
+            //sunset
+            const sunsetUTCms = data.sys.sunset * 1000;
+            const sunsetLocalMs = sunsetUTCms + (data.timezone * 1000);
+            const sunsetLocal = new Date(sunsetLocalMs);
+            const sunsetTime = sunsetLocal.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'UTC'
+            });
+            document.querySelector('.sunset').innerText = sunsetTime;
+                
+            
+            
+
+        };
+        btn.addEventListener('click',()=>{
+            checkWeather(cityName.value);
+        });
+        
+        
+    </script>
+</body>
+</html>
